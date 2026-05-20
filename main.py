@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import pandas as pd
 
 from analyzers import (
@@ -18,7 +19,7 @@ def main() -> None:
     SmartLabParser().parse_and_save(
         pd.read_json(TQBR_TOP_LISTLEVEL_SECURITIES_JSON_PATH)['SECID'].dropna().drop_duplicates().tolist()
     )
-
+    plt.ion()
     comparison = StrategyComparisonPlotter(
         analyzers=[
             PassiveStrategyAnalyzer(),
@@ -35,7 +36,7 @@ def main() -> None:
     comparison.plot_excess_returns()
     comparison.plot_turnover()
     comparison.plot_strategy_overlap_summary()
-
+    plt.show(block=True)
 
 if __name__ == '__main__':
     main()
