@@ -19,7 +19,7 @@ def main() -> None:
     SmartLabParser().parse_and_save(
         pd.read_json(TQBR_TOP_LISTLEVEL_SECURITIES_JSON_PATH)['SECID'].dropna().drop_duplicates().tolist()
     )
-    plt.ion()
+
     comparison = StrategyComparisonPlotter(
         analyzers=[
             PassiveStrategyAnalyzer(),
@@ -30,12 +30,15 @@ def main() -> None:
         ],
     )
 
+    plt.ion()
+
     comparison.plot_wealth_index()
     comparison.plot_annual_returns()
     comparison.plot_risk_return()
     comparison.plot_excess_returns()
     comparison.plot_turnover()
     comparison.plot_strategy_overlap_summary()
+
     plt.show(block=True)
 
 if __name__ == '__main__':

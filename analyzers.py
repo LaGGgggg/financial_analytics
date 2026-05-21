@@ -8,7 +8,6 @@ from settings import HISTORY_JSON_PATH, MSFO_DATA_JSON_PATH, TQBR_TOP_LISTLEVEL_
 
 @dataclass()
 class RebalancePeriod:
-    """"""
 
     year: int
     start_date: str
@@ -16,7 +15,6 @@ class RebalancePeriod:
 
 
 class StrategyAnalyzerBase(ABC):
-    """"""
 
     STRATEGY_NAME: str
     REBALANCE_PERIODS: tuple[RebalancePeriod, ...] = (
@@ -30,22 +28,19 @@ class StrategyAnalyzerBase(ABC):
 
     @abstractmethod
     def build_period_returns(self) -> pd.DataFrame:
-        """"""
+        pass
 
     def load_securities(self) -> pd.DataFrame:
-        """"""
 
         securities = pd.read_json(TQBR_TOP_LISTLEVEL_SECURITIES_JSON_PATH)
 
         return securities[securities['LISTLEVEL'].isin((1, 2))].copy()
 
     def load_history(self) -> pd.DataFrame:
-        """"""
 
         return pd.read_json(HISTORY_JSON_PATH)
 
     def load_prices(self) -> pd.DataFrame:
-        """"""
 
         securities = self.load_securities()
         history = self.load_history()
@@ -64,7 +59,6 @@ class StrategyAnalyzerBase(ABC):
         ].copy()
 
     def load_fundamentals(self) -> pd.DataFrame:
-        """"""
 
         fundamentals = pd.read_json(MSFO_DATA_JSON_PATH)
 
@@ -78,7 +72,6 @@ class StrategyAnalyzerBase(ABC):
         ].copy()
 
     def build_fundamentals_wide(self) -> pd.DataFrame:
-        """"""
 
         fundamentals = self.load_fundamentals()
 
@@ -95,7 +88,6 @@ class StrategyAnalyzerBase(ABC):
         return fundamentals_wide
 
     def build_all_period_returns(self) -> pd.DataFrame:
-        """"""
 
         prices = self.load_prices()
         frames = []
@@ -154,7 +146,6 @@ class StrategyAnalyzerBase(ABC):
         data: pd.DataFrame,
         score_column: str,
     ) -> pd.DataFrame:
-        """"""
 
         data = data[data[score_column].notna()].copy()
 
@@ -166,7 +157,6 @@ class StrategyAnalyzerBase(ABC):
         return data.sort_values(score_column, ascending=False).head(selected_count).copy()
 
     def analyze(self) -> pd.DataFrame:
-        """"""
 
         returns = self.build_period_returns()
 
@@ -192,7 +182,6 @@ class StrategyAnalyzerBase(ABC):
         ]]
 
     def analyze_holdings(self) -> pd.DataFrame:
-        """"""
 
         period_returns = self.build_period_returns()
 
@@ -213,12 +202,11 @@ class StrategyAnalyzerBase(ABC):
         ]].sort_values(['YEAR', 'SECID'])
 
     def print_result(self) -> None:
-        """"""
 
         result = self.analyze()
 
         if result.empty:
-            print('No data for analysis')
+            print('No data for analysis')  # noqa: T201
             return
 
         with pd.option_context(
@@ -226,16 +214,14 @@ class StrategyAnalyzerBase(ABC):
             'display.max_columns', None,
             'display.width', 200,
         ):
-            print(result.to_string(index=False))
+            print(result.to_string(index=False))  # noqa: T201
 
 
 class PassiveStrategyAnalyzer(StrategyAnalyzerBase):
-    """"""
 
     STRATEGY_NAME: str = 'Passive'
 
     def build_period_returns(self) -> pd.DataFrame:
-        """"""
 
         prices = self.load_prices()
         frames = []
@@ -290,7 +276,6 @@ class PassiveStrategyAnalyzer(StrategyAnalyzerBase):
         return pd.concat(frames, ignore_index=True)
 
     def analyze(self) -> pd.DataFrame:
-        """"""
 
         returns = self.build_period_returns()
 
@@ -316,7 +301,6 @@ class PassiveStrategyAnalyzer(StrategyAnalyzerBase):
         ]]
 
     def analyze_holdings(self) -> pd.DataFrame:
-        """"""
 
         period_returns = self.build_period_returns()
 
@@ -337,12 +321,11 @@ class PassiveStrategyAnalyzer(StrategyAnalyzerBase):
         ]].sort_values(['YEAR', 'SECID'])
 
     def print_result(self) -> None:
-        """"""
 
         result = self.analyze()
 
         if result.empty:
-            print('No data for analysis')
+            print('No data for analysis')  # noqa: T201
             return
 
         with pd.option_context(
@@ -350,16 +333,14 @@ class PassiveStrategyAnalyzer(StrategyAnalyzerBase):
             'display.max_columns', None,
             'display.width', 200,
         ):
-            print(result.to_string(index=False))
+            print(result.to_string(index=False))  # noqa: T201
 
 
 class MomentumStrategyAnalyzer(StrategyAnalyzerBase):
-    """"""
 
     STRATEGY_NAME: str = 'Momentum'
 
     def build_period_returns(self) -> pd.DataFrame:
-        """"""
 
         all_returns = self.build_all_period_returns()
 
@@ -406,7 +387,6 @@ class MomentumStrategyAnalyzer(StrategyAnalyzerBase):
         return pd.concat(frames, ignore_index=True)
 
     def analyze_holdings(self) -> pd.DataFrame:
-        """"""
 
         period_returns = self.build_period_returns()
 
@@ -429,7 +409,6 @@ class MomentumStrategyAnalyzer(StrategyAnalyzerBase):
 
 
 class ValueStrategyAnalyzer(StrategyAnalyzerBase):
-    """"""
 
     STRATEGY_NAME: str = 'Value'
     VALUE_METRICS: tuple[str, ...] = (
@@ -439,7 +418,6 @@ class ValueStrategyAnalyzer(StrategyAnalyzerBase):
     )
 
     def add_value_score(self, data: pd.DataFrame) -> pd.DataFrame:
-        """"""
 
         data = data.copy()
 
@@ -469,7 +447,6 @@ class ValueStrategyAnalyzer(StrategyAnalyzerBase):
         return data
 
     def build_period_returns(self) -> pd.DataFrame:
-        """"""
 
         all_returns = self.build_all_period_returns()
         fundamentals_wide = self.build_fundamentals_wide()
@@ -512,7 +489,6 @@ class ValueStrategyAnalyzer(StrategyAnalyzerBase):
         return pd.concat(frames, ignore_index=True)
 
     def analyze_holdings(self) -> pd.DataFrame:
-        """"""
 
         period_returns = self.build_period_returns()
 
@@ -545,7 +521,6 @@ class ValueStrategyAnalyzer(StrategyAnalyzerBase):
 
 
 class GrowthStrategyAnalyzer(StrategyAnalyzerBase):
-    """"""
 
     STRATEGY_NAME: str = 'Growth'
     GROWTH_METRICS: tuple[str, ...] = (
@@ -553,7 +528,6 @@ class GrowthStrategyAnalyzer(StrategyAnalyzerBase):
     )
 
     def add_growth_metrics(self, fundamentals_wide: pd.DataFrame) -> pd.DataFrame:
-        """"""
 
         fundamentals_wide = fundamentals_wide.copy()
         fundamentals_wide = fundamentals_wide.sort_values(['SECID', 'YEAR'])
@@ -599,7 +573,6 @@ class GrowthStrategyAnalyzer(StrategyAnalyzerBase):
         return fundamentals_wide
 
     def build_period_returns(self) -> pd.DataFrame:
-        """"""
 
         all_returns = self.build_all_period_returns()
         fundamentals_wide = self.build_fundamentals_wide()
@@ -641,7 +614,6 @@ class GrowthStrategyAnalyzer(StrategyAnalyzerBase):
         return pd.concat(frames, ignore_index=True)
 
     def analyze_holdings(self) -> pd.DataFrame:
-        """"""
 
         period_returns = self.build_period_returns()
 
@@ -680,7 +652,6 @@ class GrowthStrategyAnalyzer(StrategyAnalyzerBase):
 
 
 class QualityStrategyAnalyzer(StrategyAnalyzerBase):
-    """"""
 
     STRATEGY_NAME: str = 'Quality'
     NET_DEBT_METRIC: str = 'Чистый долг ,  млрд руб'  # noqa: RUF001
@@ -697,7 +668,6 @@ class QualityStrategyAnalyzer(StrategyAnalyzerBase):
     )
 
     def add_calculated_quality_metrics(self, data: pd.DataFrame) -> pd.DataFrame:
-        """"""
 
         data = data.copy()
 
@@ -718,7 +688,6 @@ class QualityStrategyAnalyzer(StrategyAnalyzerBase):
         return data
 
     def add_quality_score(self, data: pd.DataFrame) -> pd.DataFrame:
-        """"""
 
         data = data.copy()
         data = self.add_calculated_quality_metrics(data)
@@ -757,7 +726,6 @@ class QualityStrategyAnalyzer(StrategyAnalyzerBase):
         return data
 
     def build_period_returns(self) -> pd.DataFrame:
-        """"""
 
         all_returns = self.build_all_period_returns()
         fundamentals_wide = self.build_fundamentals_wide()
@@ -799,7 +767,6 @@ class QualityStrategyAnalyzer(StrategyAnalyzerBase):
         return pd.concat(frames, ignore_index=True)
 
     def analyze_holdings(self) -> pd.DataFrame:
-        """"""
 
         period_returns = self.build_period_returns()
 

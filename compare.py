@@ -5,18 +5,15 @@ from analyzers import StrategyAnalyzerBase
 
 
 class StrategyComparisonPlotter:
-    """"""
 
     COMMON_WEALTH_INDEX_COLUMN: str = 'COMMON_WEALTH_INDEX'
     COMMON_CUMULATIVE_RETURN_COLUMN: str = 'COMMON_CUMULATIVE_RETURN'
 
     def __init__(self, analyzers: list[StrategyAnalyzerBase]) -> None:
-        """"""
 
         self.analyzers = analyzers
 
     def build_comparison_result(self) -> pd.DataFrame:
-        """"""
 
         frames = []
 
@@ -33,7 +30,6 @@ class StrategyComparisonPlotter:
         return pd.concat(frames, ignore_index=True)
 
     def get_common_years(self, result: pd.DataFrame) -> list[int]:
-        """"""
 
         if result.empty:
             return []
@@ -46,7 +42,6 @@ class StrategyComparisonPlotter:
         return sorted(set.intersection(*strategy_years))
 
     def build_common_period_result(self) -> pd.DataFrame:
-        """"""
 
         result = self.build_comparison_result()
 
@@ -70,7 +65,6 @@ class StrategyComparisonPlotter:
         return common_result
 
     def plot_wealth_index(self) -> None:
-        """"""
 
         result = self.build_common_period_result()
 
@@ -104,7 +98,6 @@ class StrategyComparisonPlotter:
         plt.show()
 
     def plot_annual_returns(self) -> None:
-        """"""
 
         result = self.build_common_period_result()
 
@@ -149,7 +142,6 @@ class StrategyComparisonPlotter:
         plt.show()
 
     def build_risk_return_result(self) -> pd.DataFrame:
-        """"""
 
         result = self.build_common_period_result()
 
@@ -171,7 +163,6 @@ class StrategyComparisonPlotter:
         return risk_return_result.sort_values('RETURN_TO_RISK', ascending=False)
 
     def plot_risk_return(self) -> None:
-        """"""
 
         result = self.build_risk_return_result()
 
@@ -209,7 +200,6 @@ class StrategyComparisonPlotter:
         plt.show()
 
     def build_excess_return_result(self) -> pd.DataFrame:
-        """"""
 
         result = self.build_common_period_result()
 
@@ -234,7 +224,6 @@ class StrategyComparisonPlotter:
         return excess_result[excess_result['STRATEGY'] != 'Passive'].copy()
 
     def plot_excess_returns(self) -> None:
-        """"""
 
         result = self.build_excess_return_result()
 
@@ -279,7 +268,6 @@ class StrategyComparisonPlotter:
         plt.show()
 
     def build_holdings_result(self) -> pd.DataFrame:
-        """"""
 
         frames = []
 
@@ -301,7 +289,6 @@ class StrategyComparisonPlotter:
         return pd.concat(frames, ignore_index=True)
 
     def build_turnover_result(self) -> pd.DataFrame:
-        """"""
 
         holdings = self.build_holdings_result()
 
@@ -363,7 +350,6 @@ class StrategyComparisonPlotter:
         return pd.DataFrame(rows)
 
     def plot_turnover(self) -> None:
-        """"""
 
         result = self.build_turnover_result()
 
@@ -407,7 +393,6 @@ class StrategyComparisonPlotter:
         plt.show()
 
     def build_strategy_overlap_result(self) -> pd.DataFrame:
-        """"""
 
         holdings = self.build_holdings_result()
 
@@ -460,7 +445,6 @@ class StrategyComparisonPlotter:
         return pd.DataFrame(rows)
 
     def build_strategy_overlap_summary(self) -> pd.DataFrame:
-        """"""
 
         result = self.build_strategy_overlap_result()
 
@@ -484,7 +468,6 @@ class StrategyComparisonPlotter:
         )
 
     def plot_strategy_overlap_summary(self) -> None:
-        """"""
 
         result = self.build_strategy_overlap_summary()
 

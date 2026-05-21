@@ -12,7 +12,6 @@ from settings import DATA_DIR, HISTORY_JSON_PATH, MSFO_DATA_JSON_PATH, TQBR_TOP_
 
 
 class IssParser:
-    """"""
 
     BASE_URL: str = 'https://iss.moex.com/iss'
     PAGE_MAX_SIZE: int = 100
@@ -23,7 +22,6 @@ class IssParser:
         sleep(uniform(0.3, 0.9))  # noqa: S311
 
     def _get_page_table(self, url: str, table_name: str, params: dict | None = None) -> pd.DataFrame:
-        """"""
 
         params = {**(params or {}), 'iss.meta': 'off'}
 
@@ -36,8 +34,6 @@ class IssParser:
         return pd.DataFrame(payload[table_name]['data'], columns=payload[table_name]['columns'])
 
     def get_page_table(self, url: str, table_name: str, params: dict | None = None) -> pd.DataFrame:
-        """
-        """
 
         params = params or {}
 
@@ -66,7 +62,6 @@ class IssParser:
         return pd.concat(page_tables, ignore_index=True)
 
     def load_tqbr_top_listlevel_securities(self) -> pd.DataFrame:
-        """"""
 
         table = self._get_page_table(
             f'{self.BASE_URL}/engines/stock/markets/shares/boards/TQBR/securities.json',
@@ -89,7 +84,6 @@ class IssParser:
         return table[table['LISTLEVEL'].isin((1, 2))]
 
     def load_history_for_date(self, trading_date: date) -> pd.DataFrame:
-        """"""
 
         return self.get_page_table(
             f'{self.BASE_URL}/history/engines/stock/markets/shares/sessions/3/boards/TQBR/securities.json',
@@ -115,7 +109,6 @@ class IssParser:
         )
 
     def parse_and_save(self) -> None:
-        """"""
 
         DATA_DIR.mkdir(exist_ok=True)
 
@@ -139,7 +132,6 @@ class IssParser:
 
 
 class SmartLabParser:
-    """"""
 
     BASE_URL: str = 'https://smart-lab.ru'
 
@@ -150,11 +142,9 @@ class SmartLabParser:
 
     @staticmethod
     def normalize_text(value: str) -> str:
-        """"""
         return value.replace('\xa0', ' ').replace('\u200b', '').strip()
 
     def parse_number(self, value: str) -> float | None:
-        """"""
 
         value = self.normalize_text(value)
 
@@ -180,7 +170,6 @@ class SmartLabParser:
         return number
 
     def parse_report_date(self, value: str) -> pd.Timestamp | None:
-        """"""
 
         value = self.normalize_text(value)
 
@@ -196,7 +185,6 @@ class SmartLabParser:
         return None
 
     def get_page_html(self, secid: str) -> str:
-        """"""
 
         response = get(
             f'{self.BASE_URL}/q/{secid}/f/y/MSFO/',
@@ -214,8 +202,7 @@ class SmartLabParser:
 
         return response.text
 
-    def parse_page(self, secid: str) -> pd.DataFrame:
-        """"""
+    def parse_page(self, secid: str) -> pd.DataFrame:  # noqa: PLR0912, C901
 
         soup = BeautifulSoup(self.get_page_html(secid), 'html.parser')
 
@@ -309,7 +296,6 @@ class SmartLabParser:
         return pd.DataFrame(result_rows)
 
     def parse_and_save(self, secids: Iterable[str]) -> None:
-        """"""
 
         DATA_DIR.mkdir(exist_ok=True)
 
