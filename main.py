@@ -39,6 +39,12 @@ def main() -> None:
     comparison.plot_turnover()
     comparison.plot_strategy_overlap_summary()
 
+    comparison.plot_strategy_holdings_table(PassiveStrategyAnalyzer.STRATEGY_NAME, 2024)
+    comparison.plot_strategy_holdings_table(MomentumStrategyAnalyzer.STRATEGY_NAME, 2024)
+    comparison.plot_strategy_holdings_table(ValueStrategyAnalyzer.STRATEGY_NAME, 2024)
+    comparison.plot_strategy_holdings_table(GrowthStrategyAnalyzer.STRATEGY_NAME, 2024)
+    comparison.plot_strategy_holdings_table(QualityStrategyAnalyzer.STRATEGY_NAME, 2024)
+
     plt.show(block=True)
 
 if __name__ == '__main__':
