@@ -145,7 +145,7 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
             print(
                 '1. Wealth index',
                 '2. Annual returns',
-                '3. Rist / return',
+                '3. Risk / return',
                 '4. Excess returns',
                 '5. Turnover',
                 '6. Strategy overlap summary',
