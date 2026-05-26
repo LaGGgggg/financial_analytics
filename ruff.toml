@@ -20,6 +20,7 @@ ignore = [
   'D103',
   'D102',
   'D101',
+  'T201',
 ]
 
 [lint.flake8-quotes]
