@@ -39,7 +39,7 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
 
     command = 0
 
-    while (command != 4):  # noqa: PLR2004
+    while command != 4:  # noqa: PLR2004
 
         options_title =  ' Options: '
 
@@ -60,10 +60,10 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
             print('Enter number from 1 to 4\n')
             continue
 
-        if (command == 4):  # noqa: PLR2004
+        if command == 4:  # noqa: PLR2004
             break
 
-        if (command == 1):
+        if command == 1:
 
             plots_title = ' Plots: '
 
@@ -107,7 +107,7 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
 
             continue
 
-        if (command == 2):  # noqa: PLR2004
+        if command == 2:  # noqa: PLR2004
 
             year = 2
             year_title = ' Select year: '
@@ -179,7 +179,7 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
 
             continue
 
-        if (command == 3):  # noqa: PLR2004
+        if command == 3:  # noqa: PLR2004
 
             comparison.plot_wealth_index()
             comparison.plot_annual_returns()
