@@ -494,3 +494,50 @@ class StrategyComparisonPlotter:
 
         plt.tight_layout()
         plt.show()
+
+    def plot_strategy_holdings_table(self, strategy_name: str, year: int) -> None:
+
+        holdings = self.build_holdings_result()
+
+        if holdings.empty:
+            return
+
+        holdings = holdings[(holdings['STRATEGY'] == strategy_name) & (holdings['YEAR'] == year)].copy().head(15)
+
+        if holdings.empty:
+            return
+
+        if 'RETURN' in holdings.columns:
+            holdings = holdings.sort_values('RETURN', ascending=False)
+
+        columns = ['SECID', 'SHORTNAME', 'SECNAME', 'START_CLOSE', 'END_CLOSE', 'RETURN']
+
+        columns = [column for column in columns if column in holdings.columns]
+
+        table_data = holdings[columns].copy()
+
+        if 'RETURN' in table_data.columns:
+            table_data['RETURN'] = table_data['RETURN'].map(lambda value: f'{value * 100:.2f}%')
+
+        if 'START_CLOSE' in table_data.columns:
+            table_data['START_CLOSE'] = table_data['START_CLOSE'].map(lambda value: f'{value:.2f}')
+
+        if 'END_CLOSE' in table_data.columns:
+            table_data['END_CLOSE'] = table_data['END_CLOSE'].map(lambda value: f'{value:.2f}')
+
+        figure_height = max(3, len(table_data) * 0.35)
+
+        figure, ax = plt.subplots(figsize=(14, figure_height))
+
+        ax.axis('off')
+
+        table = ax.table(cellText=table_data.values, colLabels=table_data.columns, loc='center', cellLoc='center')
+
+        table.auto_set_font_size(value=False)
+        table.set_fontsize(8)
+        table.scale(1, 1.4)
+
+        ax.set_title(f'Holdings: {strategy_name}, {year}', fontsize=14, pad=20)
+
+        figure.tight_layout()
+        plt.show()
