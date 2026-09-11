@@ -8,7 +8,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from requests import get
 
-from settings import DATA_DIR, HISTORY_JSON_PATH, MSFO_DATA_JSON_PATH, TQBR_TOP_LISTLEVEL_SECURITIES_JSON_PATH
+from settings import DATA_DIR, HISTORY_JSON_PATH, MSFO_DATA_JSON_PATH, TQBR_TOP_LISTLEVEL_SECURITIES_JSON_PATH, DAILY_HISTORY_JSON_PATH
 
 
 class IssParser:
@@ -107,9 +107,67 @@ class IssParser:
                 ]),
             },
         )
+    def load_daily_history_range(self, start_date: str, end_date: str) -> pd.DataFrame:
+        """
+        Загружает ежедневные данные (TRADEDATE, SECID, CLOSE) за указанный период.
+        """
+        return self.get_page_table(
+            f'{self.BASE_URL}/history/engines/stock/markets/shares/sessions/3/boards/TQBR/securities.json',
+            'history',
+            params={
+                'from': start_date,
+                'till': end_date,
+                'history.columns': 'TRADEDATE,SECID,CLOSE',  # Загружаем только необходимое
+            },
+        )
+
+    
+    def load_daily_candles_range(self, secids: list[str], start_date: str, end_date: str) -> pd.DataFrame:
+        """
+        Загружает ежедневные свечи (interval=24) для списка тикеров.
+        """
+        print(f"  Загрузка ежедневных свечей для {len(secids)} тикеров (это займет ~1 минуту)...")
+        all_candles = []
+        
+        for i, secid in enumerate(secids):
+            try:
+                # interval=24 означает дневные свечи
+                df = self.get_page_table(
+                    f"{self.BASE_URL}/engines/stock/markets/shares/boards/TQBR/securities/{secid}/candles.json",
+                    "candles",
+                    params={
+                        "interval": 24,
+                        "from": start_date,
+                        "till": end_date,
+                    },
+                )
+                
+                if not df.empty:
+                    if 'begin' in df.columns and 'close' in df.columns:
+                        df = df[['begin', 'close']].copy()
+                        df = df.rename(columns={"begin": "TRADEDATE", "close": "CLOSE"})
+                        df["SECID"] = secid
+                        all_candles.append(df)
+                
+                # Выводим прогресс каждые 20 тикеров
+                if (i + 1) % 20 == 0:
+                    print(f"    Обработано {i + 1}/{len(secids)} тикеров...")
+                    
+            except Exception as e:
+                # Игнорируем ошибки по отдельным тикерам
+                pass
+                
+        if not all_candles:
+            return pd.DataFrame()
+            
+        result = pd.concat(all_candles, ignore_index=True)
+        
+        result["TRADEDATE"] = pd.to_datetime(result["TRADEDATE"])
+        result["CLOSE"] = pd.to_numeric(result["CLOSE"], errors="coerce")
+        
+        return result.dropna(subset=["TRADEDATE", "CLOSE"])
 
     def parse_and_save(self) -> None:
-
         DATA_DIR.mkdir(exist_ok=True)
 
         if not TQBR_TOP_LISTLEVEL_SECURITIES_JSON_PATH.exists():
@@ -129,6 +187,30 @@ class IssParser:
                 ],
                 ignore_index=True,
             ).to_json(HISTORY_JSON_PATH, force_ascii=False, indent=2)
+
+        if not DAILY_HISTORY_JSON_PATH.exists():
+            print('[IssParser] Начало загрузки ежедневных исторических данных...')
+            
+            securities = self.load_tqbr_top_listlevel_securities()
+            secids = securities['SECID'].dropna().unique().tolist()
+            
+            daily_df = self.load_daily_candles_range(
+                secids=secids,
+                start_date='2020-01-01',
+                end_date='2024-12-31'
+            )
+            
+            if not daily_df.empty:
+                daily_df = daily_df.drop_duplicates(subset=['TRADEDATE', 'SECID'])
+                daily_df.to_json(
+                    DAILY_HISTORY_JSON_PATH, 
+                    force_ascii=False, 
+                    indent=2,
+                    date_format='iso',
+                )
+                print(f'[IssParser] Успешно сохранено {len(daily_df)} ежедневных записей для {daily_df["SECID"].nunique()} тикеров.')
+            else:
+                print('[IssParser] ОШИБКА: Не удалось загрузить ежедневные данные.')
 
 
 class SmartLabParser:

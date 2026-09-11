@@ -7,6 +7,11 @@ from analyzers import (
     PassiveStrategyAnalyzer,
     QualityStrategyAnalyzer,
     ValueStrategyAnalyzer,
+    SeasonalityStrategyAnalyzer,
+    FractalStrategyAnalyzer,
+    NetworkStrategyAnalyzer,
+    LowVolatilityStrategyAnalyzer,
+    AnomalyStrategyAnalyzer
 )
 from compare import StrategyComparisonPlotter
 from parsers import IssParser, SmartLabParser
@@ -27,6 +32,11 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
             ValueStrategyAnalyzer(),
             GrowthStrategyAnalyzer(),
             QualityStrategyAnalyzer(),
+            SeasonalityStrategyAnalyzer(),
+            FractalStrategyAnalyzer(),
+            NetworkStrategyAnalyzer(),
+            LowVolatilityStrategyAnalyzer(),
+            AnomalyStrategyAnalyzer()
         ],
     )
 
@@ -106,7 +116,6 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
                     comparison.plot_strategy_overlap_summary()
 
             continue
-
         if command == 2:  # noqa: PLR2004
 
             year = 2
@@ -125,10 +134,10 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
 
             except ValueError:
 
-                print('Enter number from 1 to 4\n')
+                print('Enter number from 1 to 3\n')
                 continue
 
-            match year :
+            match year:
 
                 case 1:
                     year = 2023
@@ -143,21 +152,26 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
 
             print(f'{holdings_title:=^106}')
             print(
-                '1. Wealth index',
-                '2. Annual returns',
-                '3. Risk / return',
-                '4. Excess returns',
-                '5. Turnover',
-                '6. Strategy overlap summary',
+                '1. Passive',
+                '2. Momentum',
+                '3. Value',
+                '4. Growth',
+                '5. Quality',
+                '6. Seasonality',
+                '7. Fractal',
+                '8. Network',
+                '9. Low volatility',
+                '10. Statistical anomaly',
                 sep='\n',
             )
 
             try:
                 command = int(input('> '))
+                if command < 1 or command > 10: raise ValueError
 
             except ValueError:
 
-                print('Enter number from 1 to 5\n')
+                print('Enter number from 1 to 10\n')
                 continue
 
             match command:
@@ -177,6 +191,21 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
                 case 5:
                     comparison.plot_strategy_holdings_table(QualityStrategyAnalyzer.STRATEGY_NAME, year)
 
+                case 6:
+                    comparison.plot_strategy_holdings_table(SeasonalityStrategyAnalyzer.STRATEGY_NAME, year)
+
+                case 7:
+                    comparison.plot_strategy_holdings_table(FractalStrategyAnalyzer.STRATEGY_NAME, year)
+
+                case 8:
+                    comparison.plot_strategy_holdings_table(NetworkStrategyAnalyzer.STRATEGY_NAME, year)
+
+                case 9:
+                    comparison.plot_strategy_holdings_table(LowVolatilityStrategyAnalyzer.STRATEGY_NAME, year)
+
+                case 10:
+                    comparison.plot_strategy_holdings_table(AnomalyStrategyAnalyzer.STRATEGY_NAME, year)
+
             continue
 
         if command == 3:  # noqa: PLR2004
@@ -193,6 +222,10 @@ def main() -> None:  # noqa: PLR0915, PLR0912, C901
             comparison.plot_strategy_holdings_table(ValueStrategyAnalyzer.STRATEGY_NAME, 2024)
             comparison.plot_strategy_holdings_table(GrowthStrategyAnalyzer.STRATEGY_NAME, 2024)
             comparison.plot_strategy_holdings_table(QualityStrategyAnalyzer.STRATEGY_NAME, 2024)
+            comparison.plot_strategy_holdings_table(SeasonalityStrategyAnalyzer.STRATEGY_NAME, 2024)
+            comparison.plot_strategy_holdings_table(FractalStrategyAnalyzer.STRATEGY_NAME, 2024)
+            comparison.plot_strategy_holdings_table(NetworkStrategyAnalyzer.STRATEGY_NAME, 2024)
+            comparison.plot_strategy_holdings_table(LowVolatilityStrategyAnalyzer.STRATEGY_NAME, 2024)
 
     plt.show(block=True)
 
